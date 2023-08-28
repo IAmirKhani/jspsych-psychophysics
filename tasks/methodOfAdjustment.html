@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>Method of Adjustment</title>
+      <script src="https://unpkg.com/jspsych@7.3.3"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+      <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+      <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+      <script src="https://pixijs.download/release/pixi.js"></script>
+      <script src="../jspsych-psychophysics.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <link rel="stylesheet" href="../jspsych-dist/dist/jspsych.css"></link>
+    </head>
+    <body bgcolor="gray">
+      <canvas id="plotCanvas" width="400" height="300"></canvas>
+    </body>
+    <script>
+
+    const jsPsych = initJsPsych({
+        on_finish: function() {
+            jsPsych.data.displayData();
+            console.log("Contrast History:", right_const_track);
+        }
+    })
+    console.log(`jsPsych Version ${jsPsych.version()}`)
+
+    const instruction = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: 'Click on the Start button.',
+        choices: ['Start'],
+        prompt: "This is a sample program for the jspsych-psychophysics plugin.",
+    }
+
+    const gabor_width_percentage = 10; // Percentage of the viewport width
+    const distance_between_gabors_percentage = 20; // Percentage of the viewport width
+
+    // Calculate the actual pixel values based on viewport dimensions
+    const gabor_width = (gabor_width_percentage / 100) * window.innerWidth;
+    const distance_between_gabors = (distance_between_gabors_percentage / 100) * window.innerWidth;
+
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+
+    const center_x = window.innerWidth / 2;
+    const center_y = window.innerHeight / 2;
+
+    const gabor_right = {
+        obj_type: 'gabor',
+        tilt: 90,
+        sf: 0.05,
+        phase: 90,
+        width: gabor_width,
+        sc: 20,
+        contrast: 0.5,
+        disableNorm: true,
+        startX: center_x + distance_between_gabors / 2,
+        startY: 300
+    };
+
+    const gabor_left = {
+        obj_type: 'gabor',
+        tilt: 90,
+        sf: 0.05,
+        phase: 90,
+        width: gabor_width,
+        sc: 20,
+        contrast: 0.5,
+        disableNorm: true,
+        startX: center_x - distance_between_gabors / 2,
+        startY: 300
+    };
+    let right_const_track = [];
+
+    const trial = {
+        type: jsPsychPsychophysics,
+        pixi: true,
+        key_down_func: function(event){
+            // See https://jspsychophysics.hes.kyushu-u.ac.jp/objectProperties/#obj_type-gabor for uniforms
+            const uniforms = jsPsych.getCurrentTrial().stim_array[0].pixi_obj.filters[0].uniforms;
+            if (event.key === 'ArrowLeft'){
+                uniforms.Contrast -= 0.1;
+                right_const_track.push(uniforms.Contrast);                
+            } else if (event.key === 'ArrowRight'){
+                uniforms.Contrast += 0.1;
+                right_const_track.push(uniforms.Contrast); 
+            }
+        },
+        canvas_height:600,
+        prompt: `<p>Press the ArrowLeft/ArrowRight key to change the tilt and color of the gabor.</p>
+          <p>Press the space key to finish this demo.</p>`,
+        stimuli: [gabor_right, gabor_left],
+        response_type: 'key',
+        choices: [' ']
+    }
+
+    /* start the experiment */
+    jsPsych.run([instruction, trial])
+
+  </script>
+</html>
