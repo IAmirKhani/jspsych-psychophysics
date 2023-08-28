@@ -1,3 +1,4 @@
 # jspsych-psychophysics
-This is a jsPsych plugin for psychophysics.
-Please refer to the website: https://kurokida.github.io/jspsych-psychophysics/
+I am using psychopysics plugin (a plugin for jsPsych), developed by Daiichiro Kuroki to create psychophysics tasks.
+
+webiste of the developer: https://kurokida.github.io/jspsych-psychophysics/
