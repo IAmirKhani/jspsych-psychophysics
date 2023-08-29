@@ -115,7 +115,7 @@
         canvas_height: 600,
         prompt: `if you see the stimul press y and if you are not able to see it press y.<br>There are 35 trials.`,
         on_start: function(trial){
-                    const gabor_duration = 1000; // ms
+                    const gabor_duration = 100; // ms
                     trial.stimuli[0].show_start_time = 0 // fixation start time
                     trial.stimuli[0].show_end_time = 500 // fixation end time
                     trial.stimuli[1].show_start_time = 500 // image start time
