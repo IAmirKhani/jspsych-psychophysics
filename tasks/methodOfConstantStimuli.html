@@ -20,7 +20,6 @@
     const jsPsych = initJsPsych({
         on_finish: function() {
             jsPsych.data.displayData();
-            console.log("Contrast History:", right_const_track);
         }
     })
     console.log(`jsPsych Version ${jsPsych.version()}`)
@@ -31,19 +30,6 @@
         choices: ['Start'],
         prompt: "This is a sample program for the jspsych-psychophysics plugin.",
     }
-
-    const gabor_Obj = {
-        obj_type: 'gabor',
-        tilt: 90,
-        sf: 0.05,
-        phase: 90,
-        width: 200,
-        sc: 20,
-        contrast: 0.5,
-        disableNorm: true,
-        startX: window.innerWidth / 2,
-        startY: 300
-    };
 
     const conRange = [0.0025, 0.04]; // lowest and highest tested contrasts
     const nContrast = 7; // number of contrast levels in experiment
@@ -76,18 +62,17 @@
         [array[i], array[j]] = [array[j], array[i]];
     }
     }
-
-
+    
     const stimulus_object = []
 
     for (let i = 0; i < repeatedContrasts.length; i++) {
         const gabor_Obj = {
             obj_type: 'gabor',
-            tilt: 90,
-            sf: 0.05,
-            phase: 90,
+            tilt: 0,
+            sf: 0.03,
+            phase: 0,
             width: 200,
-            sc: 20,
+            sc: 200,
             contrast: repeatedContrasts[i],
             disableNorm: true,
             startX: 'center',
@@ -132,6 +117,7 @@
             if(trial_num < nTrials){
                 trial_num++;
                 idx++;
+                trial.stimuli[1] = stimulus_object[idx];
                 return true;
             } else {
                 return false;
