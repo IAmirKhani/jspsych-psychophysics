@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://pixijs.download/release/pixi.js"></script>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://pixijs.download/release/pixi.js"></script>
+    <script src="../jspsych-psychophysics.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body bgcolor="gray"></body>
+<script>
+    const jsPsych = initJsPsych({
+        on_finish: function() {
+            jsPsych.data.displayData();
+        }
+    });
+
+    const pixi_flag = jsPsych.data.getURLVariable('pixi_flag') === '1' ? true : false;
+    
+    const instruction = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: 'Click on the Start button.',
+        choices: ['Start'],
+        prompt: "This is a sample Stroop test using jspsych-psychophysics plugin.",
+    };
+
+    const fixation = {
+        obj_type: 'cross',
+        line_length: 20,
+        line_width: 2,
+    };
+
+    const words = ['Red', 'Blue', 'Green', 'Yellow'];
+    const colors = ['red', 'blue', 'green', 'yellow'];
+
+    const trial = {
+        timeline: [
+            {
+                type: jsPsychPsychophysics,
+                pixi: pixi_flag,
+                response_type: 'key',
+                choices: ['g', 'y', 'b', 'r'],
+                canvas_height: 600,
+                stimuli: [fixation, {
+                    obj_type: 'text',
+                    content: jsPsych.timelineVariable('word'),
+                    text_color: jsPsych.timelineVariable('color'),
+                    startX: 'center',
+                    startY: 'center',
+                    font: "50px 'Arial'",
+                }],
+                on_start: function (trial) {
+                    const word_duration = 500; // ms
+
+                    trial.stimuli[0].show_start_time = 0; // fixation start time
+                    trial.stimuli[0].show_end_time = 500; // fixation end time
+                    trial.stimuli[1].show_start_time = 500; // word start time
+                    trial.stimuli[1].show_end_time = trial.stimuli[1].show_start_time + word_duration; // word end time
+
+                    trial.response_start_time = trial.stimuli[1].show_end_time;
+                }
+            }
+        ],
+        timeline_variables: [
+            { word: words[0], color: colors[0] },
+            { word: words[1], color: colors[1] },
+            { word: words[2], color: colors[2] },
+            { word: words[3], color: colors[3] },
+            { word: words[0], color: colors[1] },
+            { word: words[0], color: colors[2] },
+            { word: words[0], color: colors[3] },
+            { word: words[1], color: colors[0] },
+            { word: words[1], color: colors[2] },
+            { word: words[1], color: colors[3] },
+            { word: words[2], color: colors[1] },
+            { word: words[2], color: colors[3] },
+        ],
+        randomize_order: true,
+        repetitions: 1,
+    };
+
+    jsPsych.run([instruction, trial]);
+
+</script>
+</html>
