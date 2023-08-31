@@ -109,11 +109,11 @@
     const trial = {
         type: jsPsychPsychophysics,
         pixi: true,
-        stimuli: [fixation, stimulus_object[13]],
+        stimuli: [fixation, stimulus_object[idx]],
         response_type: 'key',
         choices: ['y', 'n'],
         canvas_height: 600,
-        prompt: `if you see the stimul press y and if you are not able to see it press y.<br>There are 35 trials.`,
+        prompt: `if you see the stimul press y and if you are not able to see it press n.<br>There are 35 trials.`,
         on_start: function(trial){
                     const gabor_duration = 100; // ms
                     trial.stimuli[0].show_start_time = 0 // fixation start time
