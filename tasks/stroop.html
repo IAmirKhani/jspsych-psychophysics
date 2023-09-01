@@ -10,6 +10,7 @@
     <script src="../jspsych-psychophysics.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 </head>
 <body bgcolor="gray"></body>
 <script>
@@ -36,14 +37,24 @@
 
     const words = ['Red', 'Blue', 'Green', 'Yellow'];
     const colors = ['red', 'blue', 'green', 'yellow'];
+    const keys = ['r', 'b', 'g', 'y'];
+
+    const colorKeyMap = {
+        'red': 'r',
+        'blue': 'b',
+        'green': 'g',
+        'yellow': 'y'
+    };
+
 
     const trial = {
         timeline: [
             {
                 type: jsPsychPsychophysics,
                 pixi: pixi_flag,
-                response_type: 'key',
                 choices: ['g', 'y', 'b', 'r'],
+                correct_text: 'Correct!',
+                incorrect_text: 'Incorrect.',
                 canvas_height: 600,
                 stimuli: [fixation, {
                     obj_type: 'text',
@@ -56,12 +67,29 @@
                 on_start: function (trial) {
                     const word_duration = 500; // ms
 
-                    trial.stimuli[0].show_start_time = 0; // fixation start time
-                    trial.stimuli[0].show_end_time = 500; // fixation end time
-                    trial.stimuli[1].show_start_time = 500; // word start time
+                    trial.stimuli[0].show_start_time = 500; // fixation start time
+                    trial.stimuli[0].show_end_time = 1000; // fixation end time
+                    trial.stimuli[1].show_start_time = 1000; // word start time
                     trial.stimuli[1].show_end_time = trial.stimuli[1].show_start_time + word_duration; // word end time
 
                     trial.response_start_time = trial.stimuli[1].show_end_time;
+                },
+                on_finish: function (data) { 
+                    const correct = data.key_press === colorKeyMap[jsPsych.timelineVariable('color')] ? 'Correct!' : 'Incorrect.';
+                    // Create and display the message
+                    const messageElement = document.createElement('div');
+                    messageElement.innerHTML = correct;
+                    messageElement.style.position = 'fixed';
+                    messageElement.style.top = '50%';
+                    messageElement.style.left = '50%';
+                    messageElement.style.transform = 'translate(-50%, -50%)';
+                    messageElement.style.fontSize = '30px';
+                    //messageElement.style.color = data.correct ? 'green' : 'red';
+                    document.body.appendChild(messageElement);
+                    // Remove the message after a while
+                    setTimeout(function () {
+                        messageElement.remove();
+                    }, 500);
                 }
             }
         ],
