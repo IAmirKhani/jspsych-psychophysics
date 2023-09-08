@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://pixijs.download/release/pixi.js"></script>
+        <script src="https://unpkg.com/jspsych@7.3.3"></script>
+        <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+        <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+        <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2/dist/index.browser.min.js"></script>
+        <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+        <script src="https://pixijs.download/release/pixi.js"></script>
+        <script src="../jspsych-psychophysics.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+    <body bgcolor="0c4d1b"></body>
+    <script>
+
+        // const trial = [];
+
+        const jsPsych = initJsPsych({
+        on_finish: function() {
+        jsPsych.data.displayData();
+            }
+        });
+
+        const pixi_flag = jsPsych.data.getURLVariable('pixi_flag') === '1' ? true : false;
+
+        const instruction = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: 'Click on the Start button.',
+            choices: ['Start'],
+            prompt: "You will see a set of circles, click with mouse to see the next screen \\\
+            \n \n \n \n Then you should click on \n \n \n \n the same shape on the peripheral \\\
+            locations as the central shape \n \n \n \n click with mouse to continue",
+        };
+
+        const images = [
+        './png/1.png',
+        './png/2.png',
+        './png/3.png',
+        './png/4.png',
+        './png/5.png',
+        './png/6.png',
+        './png/7.png',
+        './png/8.png',
+        './png/9.png',
+        './png/10.png',
+        './png/center_begin.png',
+        './png/center.png',
+        './png/peri.png',
+        ];
+
+        // Define the humorous or non-standard color descriptions
+        const colors = [
+            'ugly red', 'ugly purple', 'bad pink', 'khaki-ish', 'light green', 
+            'bad purple', 'blue mixed with maybe green', 'maybe pistachio', 'ugly orange', 'just blue'
+        ];
+
+        // Array to store the resized images and their associated colors
+        let s = [];
+
+        // Preload the images
+        const preload = {
+            type: jsPsychPreload,
+            images: images,
+            on_load: function() {
+                images.forEach((imagePath, i) => {
+                    let image = new Image();
+                    image.src = imagePath;
+                    image.onload = function() {
+                        let canvas = document.createElement('canvas');
+                        let ctx = canvas.getContext('2d');
+                        canvas.width = 80;
+                        canvas.height = 80;
+                        ctx.drawImage(image, 0, 0, 80, 80);
+                        s.push({
+                            resizedImage: canvas,
+                            color: i < 10 ? colors[i] : null
+                        });
+                    };
+                });
+            }
+        };
+
+        console.log("This is a log message");
+        console.log(images);
+
+        // Calculate the center coordinates of the display
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+
+        const Diameter = 40;
+
+        // Define the locations relative to the center of the screen
+        const L_C = [cx - Diameter, cy - Diameter, cx + Diameter, cy + Diameter]; // [LEFT TOP RIGHT BOTTOM]
+        const L1 = L_C.map((val, i) => val + [-240, 215, -240, 215][i] * 0.75);
+        const L2 = L_C.map((val, i) => val + [-310, -230, -310, -230][i] * 0.75);
+        const L3 = L_C.map((val, i) => val + [240, -0, 240, -0][i] * 0.75);
+        const L4 = L_C.map((val, i) => val + [-200, -320, -200, -320][i] * 0.75);
+        const L5 = L_C.map((val, i) => val + [280, 180, 280, 180][i] * 0.75);
+        const L6 = L_C.map((val, i) => val + [-100, -100, -100, -100][i] * 0.75);
+        const L7 = L_C.map((val, i) => val + [100, 100, 100, 100][i] * 0.75);
+        const L8 = L_C.map((val, i) => val + [-0, 183, -0, 183][i] * 0.75);
+        const L9 = L_C.map((val, i) => val + [-350, 100, -350, 100][i] * 0.75);
+        const L10 = L_C.map((val, i) => val + [100, -250, 100, -250][i] * 0.75);
+
+        const Locations = [L1, L2, L3, L4, L5, L6, L7, L8, L9, L10];
+        Locations.sort(() => Math.random() - 0.5); // Shuffle the locations
+        
+        console.log("This is a log message for Locations");
+        console.log(Locations);
+
+        // Now, when you want to display a stimulus at a location, you can use the coordinates from the Locations array.
+        // For example, to display an image at the first shuffled location:
+
+        // Shuffle the images array (excluding the last 3 images which are not patterns)
+        const shuffledPatterns = images.slice(0, 10).sort(() => Math.random() - 0.5);
+
+        // Select the first 8 images from the shuffled array
+        const selectedPatterns = shuffledPatterns.slice(0, 8);
+
+        // Shuffle the Locations array
+        const shuffledLocations = Locations.sort(() => Math.random() - 0.5);
+
+        const imgStims = [];
+
+        // Assign the selected patterns to the first 8 shuffled locations
+        for (let i = 0; i < selectedPatterns.length; i++) {
+            const imageStimulus = {
+                obj_type: 'image',
+                file: selectedPatterns[i],
+                startX: shuffledLocations[i][0],
+                startY: shuffledLocations[i][1],
+                width: shuffledLocations[i][2] - shuffledLocations[i][0],
+                height: shuffledLocations[i][3] - shuffledLocations[i][1]
+            };
+            imgStims.push(imageStimulus);
+        };
+
+        // Assign the 'peri.png' image to the remaining 2 locations
+        for (let i = 8; i < 10; i++) {
+            const imageStimulus = {
+                obj_type: 'image',
+                file: './png/peri.png',
+                startX: shuffledLocations[i][0],
+                startY: shuffledLocations[i][1],
+                width: shuffledLocations[i][2] - shuffledLocations[i][0],
+                height: shuffledLocations[i][3] - shuffledLocations[i][1]
+            };
+            imgStims.push(imageStimulus);
+        };
+
+        console.log("This is a log message for images");
+        console.log(imgStims);
+
+        const fixation = {
+            obj_type: 'image',
+            file: './png/center.png',
+        };
+
+
+        console.log("This is a log message for fixation");
+        console.log(fixation);
+
+        const phase_one = {
+            timeline: [
+                {
+                    type: jsPsychPsychophysics,
+                    pixi: pixi_flag,
+                    background_color: '0c4d1b',
+                    obj_type: 'image',
+                    stimuli: [fixation, imgStims[0], imgStims[1], imgStims[2], imgStims[3], imgStims[4]]
+                }
+            ],
+        };
+
+        jsPsych.run([preload, instruction, phase_one])
+    </script>
+</html>
